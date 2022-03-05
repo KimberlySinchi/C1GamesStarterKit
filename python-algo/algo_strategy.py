@@ -204,6 +204,56 @@ class AlgoStrategy(gamelib.AlgoCore):
                         total_units += 1
         return total_units
         
+    def most_populated_quad(self, game_state):
+        """
+        Determines which quadrant the enemy has most of their units in. The quadrants are divided into
+        10 sections: divided between columns 7 and 8, 13 and 14, 19 and 20; divided between rows 18 and 19,
+        22 and 23
+
+        @param self
+        @param game_state: obj repping the game's current state
+        @return highest_den_quad: int repping most populated quadrant
+        """ 
+        quad_counts = [0] * 10
+        highest_den_quad = 0
+
+        # Iterating through the game map augmenting the counts of each quadrant
+        for location in game_state.game_map:
+            if game_state.contains_stationary_unit(location) and location[1] >= 14:
+                # At least one unit exists at the specified enemy location
+                units = game_state.gamp_map[location]
+
+                # Determining max
+                # location is [column, row]
+                if location[1] <= 18: # Quadrants 7-10
+                    if location[0] <= 7:                # Q7
+                        quad_counts[6] += len(units)
+                    elif location[0] <= 13:             # Q8
+                        quad_counts[7] += len(units)
+                    elif location[0] <= 19:             # Q9
+                        quad_counts[8] += len(units)
+                    else:                               # Q10
+                        quad_counts[9] += len(units)
+                elif location[1] <= 23: # Quadrants 3-6
+                    if location[0] <= 7:                # Q3
+                        quad_counts[2] += len(units)
+                    elif location[0] <= 13:             # Q4
+                        quad_counts[3] += len(units)
+                    elif location[0] <= 19:             # Q5
+                        quad_counts[4] += len(units)
+                    else:                               # Q6
+                        quad_counts[5] += len(units)
+                else: # Quadrants 1-2
+                    if location[0] <= 13:               # Q1
+                        quad_counts[0] += len(units)
+                    else:                               # Q2
+                        quad_counts[1] += len(units)
+
+        # Determining which quad has the highest amount of units
+        highest_den_quad = quad_counts.index(max(quad_counts))
+
+        return highest_den_quad
+
     def filter_blocked_locations(self, locations, game_state):
         filtered = []
         for location in locations:
